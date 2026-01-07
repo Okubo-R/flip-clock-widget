@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Flip Clock Widget</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 背景は白だとカードと同化するため、少しグレーにしています（必要に応じて変更可） */
+    background: #ffffff; 
+  }
+
+  .clock {
+    display: flex;
+    gap: 4px; /* カード間の隙間 */
+  }
+
+  .flip {
+    position: relative;
+    width: 200px;  /* 画像に合わせて少し幅広に */
+    height: 280px; /* 縦長比率に調整 */
+    /* カードの背景色（薄いグレー/白） */
+    background: #5b4cd1; 
+    /* 文字色（濃いグレー） */
+    color: #ffffff; 
+    
+    /* フォント設定 */
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 140px; /* 文字を大きく */
+    font-weight: 700;
+    text-align: center;
+    line-height: 280px; /* 高さと同じにして垂直中央揃え */
+    
+    border-radius: 20px; /* 角を丸く */
+    perspective: 600px;
+  }
+
+  /* 中央の分割線 */
+  .flip::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 3px; /* 少し太く */
+    /* 背景色と同じ色にして「隙間」に見せる */
+    background: #e0e0e0; /* bodyの背景色が透けているように見せる色でもOK */
+    background: rgba(255,255,255,0.8); /* あるいは白っぽくして切れ込み感を出す */
+    transform: translateY(-50%);
+    z-index: 5;
+  }
+
+  /* 上半分・下半分のコンテナ共通設定 */
+  .top,
+  .bottom,
+  .flip-top,
+  .flip-bottom {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    overflow: hidden;
+    background: #5b4cd1; /* カード背景と同じ */
+  }
+
+  /* 内部のspan（数字）の設定：高さを200%にして位置合わせ */
+  .top span,
+  .bottom span,
+  .flip-top span,
+  .flip-bottom span {
+    display: block;
+    height: 200%; 
+    line-height: 280px; /* 親のheightに合わせる */
+    width: 100%;
+    box-sizing: border-box; /* パディングを含めて高さを計算させる（ズレ防止に必須） */
+    padding-top: 10px;
+  }
+
+  /* --- 上側パーツ --- */
+  .top, .flip-top {
+    top: 0;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+  }
+  .top span, .flip-top span {
+    transform: translateY(0);
+  }
+
+  /* --- 下側パーツ --- */
+  .bottom, .flip-bottom {
+    bottom: 0;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
+  .bottom span, .flip-bottom span {
+    transform: translateY(-50%);
+  }
+
+  /* --- アニメーション用パーツの初期状態 --- */
+  .flip-top {
+    transform-origin: bottom;
+    transform: rotateX(0deg);
+    z-index: 10;
+    backface-visibility: hidden; /* 裏側を見せない */
+  }
+
+  .flip-bottom {
+    transform-origin: top;
+    transform: rotateX(90deg);
+    backface-visibility: hidden;
+  }
+
+  /* --- アニメーション動作 --- */
+  .flip.flip-animate .flip-top {
+    animation: flipTop 0.6s ease-in forwards;
+  }
+
+  .flip.flip-animate .flip-bottom {
+    animation: flipBottom 0.6s ease-out 0.6s forwards;
+  }
+
+  @keyframes flipTop {
+    0% { transform: rotateX(0deg); }
+    100% { transform: rotateX(-90deg); }
+  }
+
+  @keyframes flipBottom {
+    0% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0deg); }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="clock" id="clock"></div>
+
+<script>
+const clock = document.getElementById('clock');
+
+// フリップパネルのHTML生成（ここは変更なし）
+function createFlipDigit(value) {
+  const flip = document.createElement('div');
+  flip.className = 'flip';
+  flip.innerHTML = `
+    <div class="top"><span>${value}</span></div>
+    <div class="bottom"><span>${value}</span></div>
+    <div class="flip-top"><span>${value}</span></div>
+    <div class="flip-bottom"><span>${value}</span></div>
+  `;
+  return flip;
+}
+
+function updateClock() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+
+  const groups = [hours, minutes];
+
+  if (clock.children.length === 0) {
+    groups.forEach(g => clock.appendChild(createFlipDigit(g)));
+    return;
+  }
+
+  groups.forEach((val, i) => {
+    const flip = clock.children[i];
+    
+    // 現在表示されている数字を取得
+    // どのパーツから取っても同じですが、代表して .top から取得
+    const current = flip.querySelector('.top span').textContent;
+
+    // 数字が変わった場合のみ更新
+    if (current !== val) {
+      // --- 【変更点】 アニメーション処理を削除 ---
+      
+      // アニメーション用のクラス操作 (flip-animate) を削除しました。
+      // 代わりに、4枚すべての板（表示用2枚＋アニメ用2枚）の数字を
+      // 一瞬で新しい値に書き換えます。
+      
+      flip.querySelector('.top span').textContent = val;
+      flip.querySelector('.bottom span').textContent = val;
+      flip.querySelector('.flip-top span').textContent = val;
+      flip.querySelector('.flip-bottom span').textContent = val;
+    }
+  });
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+</script>
+
+</body>
+</html>
