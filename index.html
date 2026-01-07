@@ -25,8 +25,8 @@
 
   .flip {
     position: relative;
-    width: 200px;  /* 画像に合わせて少し幅広に */
-    height: 280px; /* 縦長比率に調整 */
+    width: 100px;  /* 画像に合わせて少し幅広に */
+    height: 140px; /* 縦長比率に調整 */
     /* カードの背景色（薄いグレー/白） */
     background: #5b4cd1; 
     /* 文字色（濃いグレー） */
@@ -34,13 +34,13 @@
     
     /* フォント設定 */
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 140px; /* 文字を大きく */
+    font-size: 70px; /* 文字を大きく */
     font-weight: 700;
     text-align: center;
-    line-height: 280px; /* 高さと同じにして垂直中央揃え */
+    line-height: 140px; /* 高さと同じにして垂直中央揃え */
     
-    border-radius: 20px; /* 角を丸く */
-    perspective: 600px;
+    border-radius: 10px; /* 角を丸く */
+    perspective: 300px;
   }
 
   /* 中央の分割線 */
@@ -78,17 +78,17 @@
   .flip-bottom span {
     display: block;
     height: 200%; 
-    line-height: 280px; /* 親のheightに合わせる */
+    line-height: 140px; /* 親のheightに合わせる */
     width: 100%;
     box-sizing: border-box; /* パディングを含めて高さを計算させる（ズレ防止に必須） */
-    padding-top: 10px;
+    padding-top: 5px;
   }
 
   /* --- 上側パーツ --- */
   .top, .flip-top {
     top: 0;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
   }
   .top span, .flip-top span {
     transform: translateY(0);
@@ -97,8 +97,8 @@
   /* --- 下側パーツ --- */
   .bottom, .flip-bottom {
     bottom: 0;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
   }
   .bottom span, .flip-bottom span {
     transform: translateY(-50%);
